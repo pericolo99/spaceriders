@@ -70,6 +70,11 @@ serve un certificato, in produzione basta quello del dominio.
 dell'app in `public/icons/` si ricavano dallo stesso file. L'originale è a 275 px: per icone
 più nitide sul telefono servirebbe una versione più grande o vettoriale.
 
+## In produzione
+
+Su Plesk, nello stesso database del vecchio pannello con le tabelle prefissate `sr_`:
+vedi [docs/INSTALLAZIONE_PLESK.md](docs/INSTALLAZIONE_PLESK.md).
+
 ## Test
 
 ```sh

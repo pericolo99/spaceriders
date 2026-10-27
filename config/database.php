@@ -55,7 +55,10 @@ return [
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8mb4'),
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
-            'prefix' => '',
+            // In produzione le tabelle nuove stanno nello stesso database del vecchio
+            // pannello, che ha già `users`, `clienti` e `attrezzature`: il prefisso
+            // (DB_PREFIX=sr_) le tiene separate.
+            'prefix' => env('DB_PREFIX', ''),
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
@@ -75,7 +78,10 @@ return [
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8mb4'),
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
-            'prefix' => '',
+            // In produzione le tabelle nuove stanno nello stesso database del vecchio
+            // pannello, che ha già `users`, `clienti` e `attrezzature`: il prefisso
+            // (DB_PREFIX=sr_) le tiene separate.
+            'prefix' => env('DB_PREFIX', ''),
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
@@ -86,6 +92,7 @@ return [
 
         // Il database del vecchio pannello (Slim 2), caricato da docker/importa-storico.sh.
         // Stesso server e stesse credenziali dell'app: cambia solo il database.
+        // In produzione è lo stesso database dell'app, letto senza prefisso.
         // Lo legge soltanto il comando kaukau:importa-storico.
         'storico' => [
             'driver' => 'mariadb',
