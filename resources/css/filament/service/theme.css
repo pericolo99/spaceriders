@@ -1,0 +1,181 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+@source '../../../../resources/views/livewire/**/*';
+@source '../../../../resources/views/components/**/*';
+@source '../../../../app/Livewire/**/*';
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Tema di Kaukau Service — versione B dei mockup
+   ───────────────────────────────────────────────────────────────────────────
+   Leggero: fondo bianco, grigi caldi (la rampa «gray» è Stone, impostata nel
+   pannello), superfici piatte con un filo di bordo, angoli molto arrotondati.
+   Un solo colore d'azione, il verde petrolio del primary.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Testo un po' più grande del default di Filament (16px → 17px). Tutto il
+   pannello è in rem, quindi crescono insieme anche spazi e bottoni. */
+html {
+    font-size: 106.25%;
+}
+
+:root {
+    --kk-linea: #f0efee;
+    --kk-tenue: #f5f5f4;
+}
+
+body,
+.fi-body {
+    background: #ffffff;
+}
+
+/* Il marchio: il logo tondo di Space Riders e il nome dell'app. */
+.kk-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.kk-brand-logo {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.kk-brand-testo {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.kk-brand-nome {
+    font-weight: 700;
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+    color: var(--color-gray-950);
+}
+
+.kk-brand-app {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-primary-700);
+}
+
+/* Nella pagina di accesso il logo è il protagonista. */
+.fi-simple-layout .kk-brand {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+}
+
+.fi-simple-layout .kk-brand-logo {
+    width: 6rem;
+    height: 6rem;
+}
+
+.fi-simple-layout .kk-brand-nome {
+    font-size: 1.5rem;
+}
+
+/* Barra in alto: bianca, senza ombra, un filo sotto. */
+.fi-topbar,
+.fi-topbar nav {
+    background: #ffffff;
+    box-shadow: none;
+    border-bottom: 1px solid var(--kk-linea);
+}
+
+/* Le voci del menu come pillole, come nel mockup. */
+.fi-topbar-item-btn {
+    border-radius: 9999px;
+}
+
+/* Superfici piatte: niente ombre, bordo sottile, raggio generoso. */
+.fi-section,
+.fi-ta-ctn,
+.fi-wi-stats-overview-stat,
+.fi-fo-field-wrp .fi-input-wrp {
+    box-shadow: none;
+}
+
+.fi-section,
+.fi-ta-ctn {
+    border-radius: 1.25rem;
+    --tw-ring-color: var(--kk-linea);
+}
+
+.fi-header-heading {
+    letter-spacing: -0.03em;
+}
+
+/* Bottoni a pillola, altezza da dito. */
+.fi-btn {
+    border-radius: 9999px;
+}
+
+/* Le scelte grandi del rientro («Com'è tornato?»). */
+.kk-scelte .fi-fo-toggle-buttons-btn-ctn,
+.kk-scelte .fi-btn {
+    min-height: 3.5rem;
+    border-radius: 1.125rem;
+    font-size: 1rem;
+}
+
+/* Il riquadro della fotocamera per lo scanner. */
+.kk-camera {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    background: #2a2a2e;
+    aspect-ratio: 16 / 9;
+}
+
+.kk-camera video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.kk-camera-mirino {
+    position: absolute;
+    inset: 22% 14%;
+    border: 3px solid rgb(255 255 255 / 0.9);
+    border-radius: 1.125rem;
+    pointer-events: none;
+}
+
+.kk-camera-mirino::after {
+    content: '';
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    top: 50%;
+    height: 2px;
+    background: #5eead4;
+}
+
+/* Barra in alto compatta: marchio su una riga, ricerca più stretta, così
+   menu e pulsanti Consegna/Rientro stanno su una riga sola. */
+.kk-brand-nome {
+    white-space: nowrap;
+}
+
+.fi-topbar .kk-brand-app {
+    display: none;
+}
+
+.fi-topbar .fi-global-search-field {
+    max-width: 11rem;
+}
+
+.fi-topbar-item-btn {
+    padding-inline: 0.625rem;
+}
+
+/* Sotto i 1600px le voci del menu in alto restano solo testo: con i contatori
+   (noleggi in ritardo, pezzi da controllare) le icone lo manderebbero a capo. */
+@media (max-width: 1599px) {
+    .fi-topbar .fi-topbar-item-icon {
+        display: none;
+    }
+}

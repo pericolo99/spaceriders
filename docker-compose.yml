@@ -1,0 +1,88 @@
+# Ambiente di sviluppo di Kaukau Service — autonomo.
+#
+#   docker compose up -d        ← basta questo: .env, vendor, APP_KEY,
+#                                 migrazioni e asset li fa il container
+#   docker compose logs -f app
+#   docker compose down         ← i dati restano nei volumi
+#
+# Dati del vecchio pannello: docker/importa-storico.sh <dump.sql|dump.sql.zip>
+#
+# Le porte host si cambiano da .env (APP_PORT, FORWARD_DB_PORT).
+# 9090/9091 e 3310 sono già usate da CRM e Filo su questa macchina.
+
+# Il nome del progetto è fissato: i volumi dei dati non devono cambiare nome
+# se la cartella viene rinominata o clonata altrove.
+name: kaukau-service
+
+services:
+  app:
+    build:
+      context: ./docker
+      dockerfile: dev.Dockerfile
+    image: kaukau-service-dev:8.3
+    working_dir: /app
+    # I file creati dal container (vendor, storage/logs, cache) restano
+    # dell'utente host: niente root sui sorgenti.
+    user: "${DOCKER_UID:-1000}:${DOCKER_GID:-1000}"
+    volumes:
+      - .:/app
+    environment:
+      COMPOSER_HOME: /tmp/composer
+      # L'uid host non ha una home nell'immagine: senza questo psysh (tinker)
+      # e gli altri strumenti che scrivono in ~ falliscono.
+      HOME: /tmp
+    ports:
+      - "${APP_PORT:-9092}:8000"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      assets:
+        condition: service_completed_successfully
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8000/up"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+    restart: unless-stopped
+
+  # Build degli asset (tema Filament, scanner) dentro il compose: non serve
+  # lanciare `npm run build` a mano. node_modules sta in un volume, così
+  # l'installazione musl del container non tocca quella host.
+  assets:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+      - node-modules:/app/node_modules
+    command: >
+      sh -c "npm install --no-audit --no-fund --loglevel=error
+      && npm run build
+      && chown -R ${DOCKER_UID:-1000}:${DOCKER_GID:-1000} public/build package-lock.json"
+    restart: "no"
+
+  mariadb:
+    image: mariadb:11.4
+    environment:
+      MARIADB_DATABASE: "${DB_DATABASE:-kaukau}"
+      MARIADB_USER: "${DB_USERNAME:-kaukau}"
+      MARIADB_PASSWORD: "${DB_PASSWORD:-secret}"
+      MARIADB_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-root}"
+    # Porta host solo per ispezionare il DB da fuori; dentro la rete compose
+    # si usa sempre mariadb:3306.
+    ports:
+      - "${FORWARD_DB_PORT:-3311}:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./docker/mariadb-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  mariadb-data:
+  node-modules:
