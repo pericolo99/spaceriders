@@ -165,6 +165,26 @@ senza i pacchetti di sviluppo, controllo del `.env` (prefisso compreso), chiave 
 manca, compilazione del tema, migrazioni (solo tabelle `sr_`), collegamento delle foto
 (`storage:link`), cache. Si ferma al primo errore.
 
+### Se dopo un pull lo script non parte
+
+Il segno è il tema: dopo un aggiornamento le pagine hanno colori vecchi o pezzi invisibili
+(il 28/10/2026 il riquadro Rientro di Oggi era bianco su bianco). Ogni volta che parte, lo script
+scrive in **`storage/logs/pubblicazione.log`**: se lì non c'è una riga con la data del pull, Plesk
+non l'ha lanciato.
+
+1. *Git → (il repository) → Repository Settings*: **Enable additional deployment actions** deve
+   essere spuntato, con il comando `bash deploy/plesk-deploy.sh`.
+2. Nella stessa pagina, **Deployment mode**. Con *Manual* il pull scarica il codice ma non lo
+   pubblica: le azioni partono solo con **Deploy**. Con *Automatic* partono a ogni pull. Meglio
+   *Automatic*.
+3. Se il registro c'è ma finisce con un errore, l'errore dice cosa manca. Il caso tipico è
+   `npm non trovato`: dalle azioni di Plesk il PATH è più corto che in SSH. In SSH,
+   `command -v npm` dice dov'è; quel percorso va passato nel comando delle azioni:
+   `NPM_BIN=/percorso/di/npm bash deploy/plesk-deploy.sh`.
+
+Lo script **si ferma** se non trova npm, invece di tenere il tema vecchio: con le classi nuove
+che mancano, il pannello si rompe in modi che non sembrano un problema di pubblicazione.
+
 ### Se il deploy dice «command not found» o «php non trovato»
 
 L'abbonamento ha la shell **chroot**: i comandi lanciati da Plesk non vedono `/opt/plesk`, dove
