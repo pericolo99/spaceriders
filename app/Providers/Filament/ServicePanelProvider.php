@@ -44,7 +44,8 @@ class ServicePanelProvider extends PanelProvider
             ->brandName('Space Riders Service')
             ->brandLogo(fn (): View => view('filament.brand'))
             ->brandLogoHeight('auto')
-            ->favicon(fn (): string => asset('icons/favicon-32.png'))
+            // Non in /icons/: su Apache quell'indirizzo è riservato alle icone del server.
+            ->favicon(fn (): string => asset('app-icone/favicon-32.png'))
             ->colors([
                 'primary' => self::verdePetrolio(),
                 'success' => self::verdePetrolio(),

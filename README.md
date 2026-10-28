@@ -67,7 +67,7 @@ serve un certificato, in produzione basta quello del dominio.
 ## Logo
 
 `public/brand/`: il logo Space Riders Snow Team in nero e in verde petrolio. Le icone
-dell'app in `public/icons/` si ricavano dallo stesso file. L'originale è a 275 px: per icone
+dell'app in `public/app-icone/` si ricavano dallo stesso file. L'originale è a 275 px: per icone
 più nitide sul telefono servirebbe una versione più grande o vettoriale.
 
 ## In produzione

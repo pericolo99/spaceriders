@@ -3,4 +3,4 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Space Riders">
-<link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
+<link rel="apple-touch-icon" href="{{ asset('app-icone/apple-touch-icon.png') }}">

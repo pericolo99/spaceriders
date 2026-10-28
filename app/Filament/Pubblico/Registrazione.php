@@ -60,6 +60,12 @@ class Registrazione extends SimplePage
         return $this->registrato ? null : 'Scrivi qui i tuoi dati prima di passare al banco: il noleggio sarà più veloce.';
     }
 
+    /** Lo sfondo di neve fresca e il logo senza scritte: vedi la vista. */
+    public function getExtraBodyAttributes(): array
+    {
+        return ['class' => 'kk-registrazione'];
+    }
+
     public function getMaxWidth(): Width|string|null
     {
         return Width::TwoExtraLarge;
