@@ -14,6 +14,14 @@ class ListClienti extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [Action::make('nuovo')->label('Nuovo cliente')->dispatch('apri-nuovo-cliente')];
+        return [
+            // La pagina pubblica: da aprire sul tablet del banco o da stampare come QR.
+            Action::make('registrazione')
+                ->label('Pagina di registrazione')
+                ->color('gray')
+                ->url(fn (): string => route('filament.service.registrazione'))
+                ->openUrlInNewTab(),
+            Action::make('nuovo')->label('Nuovo cliente')->dispatch('apri-nuovo-cliente'),
+        ];
     }
 }

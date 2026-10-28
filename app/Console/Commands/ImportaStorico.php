@@ -113,6 +113,7 @@ class ImportaStorico extends Command
                 'telefono' => $this->testo($a->contatto_telefono),
                 'email' => $this->testo($a->contatto_email),
                 'note' => $this->testo($a->descrizione),
+                'origine' => $a->registrazione === 'Portale' ? 'portale' : 'banco',
                 'created_at' => $a->created_at ?? $this->data($a->data_creazione) ?? now(),
             ]);
 

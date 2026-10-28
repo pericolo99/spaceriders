@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Oggi;
+use App\Filament\Pubblico\Registrazione;
 use App\Filament\Resources\Utenti\UserResource;
 use Filament\Actions\Action;
 use Filament\Enums\ThemeMode;
@@ -21,6 +22,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Route;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /**
@@ -68,12 +70,15 @@ class ServicePanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->widgets([])
+            // La pagina pubblica dove i clienti si registrano da soli: senza accesso.
+            ->routes(fn () => Route::get('registrazione', Registrazione::class)->name('registrazione'))
             // Consegna, rientro e nuovo cliente sono finestre, apribili da ogni pagina.
             ->renderHook(PanelsRenderHook::GLOBAL_SEARCH_BEFORE, fn (): View => view('filament.operazioni.pulsanti'))
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.operazioni.finestre'))
             // Installabile sul telefono: manifest, icone e service worker.
-            ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('filament.pwa.head'))
-            ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.pwa.body'))
+            // Non sulla registrazione: è dei clienti, non va installata come app del banco.
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): ?View => self::perIlBanco('filament.pwa.head'))
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): ?View => self::perIlBanco('filament.pwa.body'))
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -88,6 +93,11 @@ class ServicePanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    private static function perIlBanco(string $vista): ?View
+    {
+        return request()->routeIs('filament.service.registrazione') ? null : view($vista);
     }
 
     /**

@@ -68,6 +68,13 @@ return [
     'timezone' => 'Europe/Rome',
 
     /*
+    | L'informativa sulla privacy del noleggio, linkata dalla pagina pubblica di
+    | registrazione accanto al consenso. Vuota: il consenso resta, senza link.
+    */
+
+    'privacy_url' => env('PRIVACY_URL'),
+
+    /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------

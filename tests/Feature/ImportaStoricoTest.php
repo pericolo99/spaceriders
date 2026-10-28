@@ -38,7 +38,7 @@ class ImportaStoricoTest extends TestCase
         });
         $s->create('anagrafica', function (Blueprint $t) {
             $t->integer('id');
-            foreach (['nome', 'cognome', 'codice_fiscale', 'luogo_nascita', 'indirizzo', 'citta', 'cap', 'localita', 'contatto_telefono', 'contatto_email', 'descrizione', 'data_nascita', 'data_creazione', 'created_at'] as $c) {
+            foreach (['nome', 'cognome', 'codice_fiscale', 'luogo_nascita', 'indirizzo', 'citta', 'cap', 'localita', 'contatto_telefono', 'contatto_email', 'descrizione', 'registrazione', 'data_nascita', 'data_creazione', 'created_at'] as $c) {
                 $t->string($c)->nullable();
             }
         });
@@ -75,7 +75,7 @@ class ImportaStoricoTest extends TestCase
 
         $db = DB::connection('storico');
         $db->table('users')->insert(['id' => 1, 'email' => 'Banco@Example.it', 'password' => Hash::make('segreta'), 'first_name' => 'Anna', 'last_name' => 'Neri']);
-        $db->table('anagrafica')->insert(['id' => 10, 'nome' => 'Luca', 'cognome' => 'Conti', 'contatto_telefono' => ' 333 ']);
+        $db->table('anagrafica')->insert(['id' => 10, 'nome' => 'Luca', 'cognome' => 'Conti', 'contatto_telefono' => ' 333 ', 'registrazione' => 'Portale']);
         $db->table('attrezzature')->insert([
             ['id' => 1, 'codice' => '61978001', 'tipologia' => 'SKI', 'marca' => 'HEAD', 'modello' => 'KORE', 'misura' => '170', 'stato' => null, 'codice_gestionale' => ''],
             ['id' => 2, 'codice' => '61978002', 'tipologia' => 'SSK', 'marca' => 'LANGE', 'modello' => 'RX', 'misura' => '27', 'stato' => '-1', 'codice_gestionale' => null],
@@ -106,6 +106,7 @@ class ImportaStoricoTest extends TestCase
         $cliente = Cliente::sole();
         $this->assertSame('Conti Luca', $cliente->nominativo);
         $this->assertSame('333', $cliente->telefono);
+        $this->assertSame('portale', $cliente->origine);
 
         $this->assertSame(Tipologia::Altro, Attrezzatura::where('codice', '61978003')->sole()->tipologia);
         $this->assertSame(StatoAttrezzatura::FuoriServizio, Attrezzatura::where('codice', '61978002')->sole()->stato);

@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -55,6 +56,11 @@ class ClienteResource extends Resource
                     ->searchable(['cognome', 'nome', 'codice_fiscale'])
                     ->sortable(['cognome', 'nome'])
                     ->description(fn (Cliente $c): ?string => $c->codice_fiscale),
+                TextColumn::make('origine')
+                    ->label('Registrato')
+                    ->formatStateUsing(fn (string $state): string => $state === 'portale' ? 'Da solo' : 'Al banco')
+                    ->color('gray')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('telefono')->label('Telefono')->searchable()->placeholder('—'),
                 TextColumn::make('email')->label('Email')->searchable()->placeholder('—')->toggleable(),
                 TextColumn::make('citta')->label('Città')->placeholder('—')->toggleable(),
@@ -67,6 +73,9 @@ class ClienteResource extends Resource
                     ->placeholder(''),
             ])
             ->filters([
+                SelectFilter::make('origine')
+                    ->label('Registrato')
+                    ->options(['portale' => 'Da solo, dalla pagina di registrazione', 'banco' => 'Al banco']),
                 TernaryFilter::make('con_noleggi_aperti')
                     ->label('Noleggi aperti')
                     ->queries(
