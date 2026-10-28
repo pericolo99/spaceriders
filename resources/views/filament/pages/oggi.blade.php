@@ -10,12 +10,12 @@
 
         {{-- I numeri della giornata: una fascia sola, senza riquadri. --}}
         <section aria-label="Numeri di oggi"
-            class="grid grid-cols-2 gap-x-8 gap-y-6 border-y border-gray-100 py-6 lg:grid-cols-4">
+            class="grid grid-cols-2 gap-x-8 gap-y-6 border-y border-gray-200 py-6 lg:grid-cols-4">
             <div class="flex flex-col gap-1.5">
                 <span class="text-sm text-gray-600">Consegne di oggi</span>
                 <span class="text-4xl font-semibold tracking-tight text-gray-950">{{ $consegne }}</span>
                 <a href="{{ NoleggioResource::getUrl('index', ['filters' => ['periodo' => ['value' => 'consegnati_oggi']]]) }}"
-                    class="text-sm text-gray-600 hover:text-primary-700">Vedi i noleggi</a>
+                    class="text-sm font-semibold text-primary-700 hover:text-primary-800">Vedi i noleggi</a>
             </div>
 
             <div class="flex flex-col gap-1.5">
@@ -23,8 +23,8 @@
                 <span class="text-4xl font-semibold tracking-tight text-gray-950">
                     {{ $rientri[0] }}<span class="text-xl font-medium text-gray-400"> / {{ $rientri[1] }}</span>
                 </span>
-                <div class="mt-1.5 h-1 rounded-full bg-gray-100">
-                    <div class="h-1 rounded-full bg-primary-600" style="width: {{ $percento($rientri[0], $rientri[1]) }}%"></div>
+                <div class="mt-1.5 h-1.5 rounded-full bg-gray-200">
+                    <div class="h-1.5 rounded-full bg-primary-600" style="width: {{ $percento($rientri[0], $rientri[1]) }}%"></div>
                 </div>
             </div>
 
@@ -44,7 +44,7 @@
                 </span>
                 @if ($daControllare)
                     <a href="{{ AttrezzaturaResource::getUrl('index', ['tab' => 'da_controllare']) }}"
-                        class="text-sm text-gray-600 hover:text-primary-700">{{ $daControllare }} da controllare</a>
+                        class="text-sm font-semibold text-warning-700 hover:text-warning-800">{{ $daControllare }} da controllare</a>
                 @endif
             </div>
         </section>
@@ -52,24 +52,24 @@
         {{-- Le azioni del banco. --}}
         <section aria-label="Azioni" class="grid gap-4 sm:grid-cols-3">
             <button type="button" wire:click="$dispatch('apri-consegna')"
-                class="text-left flex flex-col gap-7 rounded-3xl bg-primary-50 p-6 text-gray-950 transition hover:bg-primary-100">
-                <x-filament::icon icon="heroicon-o-arrow-right" class="h-7 w-7 text-primary-700" />
+                class="text-left flex flex-col gap-7 rounded-3xl bg-primary-600 p-6 text-white transition hover:bg-primary-700">
+                <x-filament::icon icon="heroicon-o-arrow-right" class="h-7 w-7" />
                 <span class="flex flex-col gap-1">
                     <span class="text-lg font-semibold">Consegna</span>
-                    <span class="text-sm text-gray-600">Scansiona e consegna il materiale</span>
+                    <span class="text-sm text-primary-100">Scansiona e consegna il materiale</span>
                 </span>
             </button>
             <button type="button" wire:click="$dispatch('apri-rientro')"
-                class="text-left flex flex-col gap-7 rounded-3xl bg-gray-100 p-6 text-gray-950 transition hover:bg-gray-200/70">
+                class="text-left flex flex-col gap-7 rounded-3xl bg-gray-900 p-6 text-white transition hover:bg-gray-800">
                 <x-filament::icon icon="heroicon-o-arrow-left" class="h-7 w-7" />
                 <span class="flex flex-col gap-1">
                     <span class="text-lg font-semibold">Rientro</span>
-                    <span class="text-sm text-gray-600">Controlla e registra cosa torna</span>
+                    <span class="text-sm text-gray-300">Controlla e registra cosa torna</span>
                 </span>
             </button>
             <button type="button" wire:click="$dispatch('apri-nuovo-cliente')"
-                class="text-left flex flex-col gap-7 rounded-3xl bg-gray-100 p-6 text-gray-950 transition hover:bg-gray-200/70">
-                <x-filament::icon icon="heroicon-o-user-plus" class="h-7 w-7" />
+                class="text-left flex flex-col gap-7 rounded-3xl bg-gray-100 p-6 text-gray-950 ring-1 ring-gray-200 transition hover:bg-gray-200/70">
+                <x-filament::icon icon="heroicon-o-user-plus" class="h-7 w-7 text-primary-700" />
                 <span class="flex flex-col gap-1">
                     <span class="text-lg font-semibold">Nuovo cliente</span>
                     <span class="text-sm text-gray-600">Dati e contatti per il noleggio</span>
@@ -102,7 +102,7 @@
                     $ritardo = $noleggio->giorniDiRitardo();
                 @endphp
                 <button type="button" wire:click="$dispatch('apri-rientro-noleggio', { noleggio: {{ $noleggio->id }} })"
-                    class="flex w-full items-center gap-4 border-t border-gray-100 px-2 py-4 text-left hover:bg-gray-50 sm:gap-5">
+                    class="flex w-full items-center gap-4 border-t border-gray-200 px-2 py-4 text-left hover:bg-gray-50 sm:gap-5">
                     {{-- Su schermo largo la data ha la sua colonna; sul telefono scende sotto il nome. --}}
                     <span class="hidden w-24 shrink-0 text-sm text-gray-500 sm:block">{{ $quando }}</span>
                     <span class="flex min-w-0 grow flex-col gap-0.5">
@@ -113,17 +113,17 @@
                                 · sacche: {{ $noleggio->sacche() }}
                             @endif
                         </span>
-                        <span @class(['text-sm font-medium sm:hidden', 'text-warning-700' => $ritardo, 'text-gray-600' => ! $ritardo])>
+                        <span @class(['text-sm font-semibold sm:hidden', 'text-warning-700' => $ritardo, 'text-primary-700' => ! $ritardo])>
                             {{ $ritardo ? "Dal {$quando} · {$ritardo} ".($ritardo === 1 ? 'giorno' : 'giorni').' di ritardo' : 'Rientro oggi' }}
                         </span>
                     </span>
                     @if ($ritardo)
-                        <span class="hidden shrink-0 items-center gap-2 text-sm font-medium text-warning-700 sm:flex">
+                        <span class="hidden shrink-0 items-center gap-2 rounded-full bg-warning-100 px-3 py-1 text-sm font-semibold text-warning-800 sm:flex">
                             <span class="h-2 w-2 rounded-full bg-warning-600"></span>
                             {{ $ritardo }} {{ $ritardo === 1 ? 'giorno' : 'giorni' }} di ritardo
                         </span>
                     @else
-                        <span class="hidden shrink-0 items-center gap-2 text-sm font-medium text-gray-600 sm:flex">
+                        <span class="hidden shrink-0 items-center gap-2 rounded-full bg-primary-100 px-3 py-1 text-sm font-semibold text-primary-800 sm:flex">
                             <span class="h-2 w-2 rounded-full bg-primary-600"></span>
                             Rientro
                         </span>

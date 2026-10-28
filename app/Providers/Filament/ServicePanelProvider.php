@@ -52,7 +52,7 @@ class ServicePanelProvider extends PanelProvider
                 'warning' => Color::hex('#B45309'),
                 'danger' => Color::hex('#B42318'),
                 'info' => Color::hex('#2563EB'),
-                'gray' => Color::Stone,
+                'gray' => self::grigiDecisi(),
             ])
             ->font('DM Sans')
             ->defaultThemeMode(ThemeMode::Light)
@@ -99,6 +99,30 @@ class ServicePanelProvider extends PanelProvider
     private static function perIlBanco(string $vista): ?View
     {
         return request()->routeIs('filament.service.registrazione') ? null : view($vista);
+    }
+
+    /**
+     * Lo Stone di Tailwind con i toni medi spostati di un passo verso lo scuro:
+     * testi secondari, icone e segnaposto si leggono meglio. Gli sfondi chiari
+     * (50–300) restano quelli, così il pannello resta bianco e leggero.
+     */
+    private static function grigiDecisi(): array
+    {
+        $stone = Color::Stone;
+
+        return [
+            50 => $stone[50],
+            100 => $stone[100],
+            200 => $stone[200],
+            300 => $stone[300],
+            400 => $stone[500],
+            500 => $stone[600],
+            600 => $stone[700],
+            700 => $stone[800],
+            800 => $stone[900],
+            900 => $stone[950],
+            950 => $stone[950],
+        ];
     }
 
     /**

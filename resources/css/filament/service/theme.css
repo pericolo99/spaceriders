@@ -21,7 +21,7 @@ html {
 }
 
 :root {
-    --kk-linea: #f0efee;
+    --kk-linea: #e7e5e4;
     --kk-tenue: #f5f5f4;
 }
 
@@ -85,9 +85,49 @@ body,
     border-bottom: 1px solid var(--kk-linea);
 }
 
-/* Le voci del menu come pillole, come nel mockup. */
+/* Le voci del menu come pillole, come nel mockup. Quella attiva è piena. */
 .fi-topbar-item-btn {
     border-radius: 9999px;
+}
+
+.fi-topbar-item.fi-active .fi-topbar-item-btn {
+    background: var(--color-primary-600);
+}
+
+.fi-topbar-item.fi-active .fi-topbar-item-label,
+.fi-topbar-item.fi-active .fi-topbar-item-btn > .fi-icon {
+    color: #ffffff;
+}
+
+.fi-topbar-item-label {
+    color: var(--color-gray-900);
+}
+
+/* Le schede (tipologie dell'inventario, segnalazioni): come il menu. */
+.fi-tabs-item {
+    border-radius: 9999px;
+}
+
+.fi-tabs-item.fi-active {
+    background: var(--color-primary-600);
+}
+
+.fi-tabs-item.fi-active .fi-tabs-item-label,
+.fi-tabs-item.fi-active > .fi-icon {
+    color: #ffffff;
+}
+
+.fi-tabs-item.fi-active .fi-badge.fi-color {
+    @apply bg-white text-color-800 ring-0;
+}
+
+/* Etichette di stato più piene: «In ritardo», contatori del menu, filtri. */
+.fi-badge.fi-color {
+    @apply bg-color-100 text-color-800 ring-color-600/30;
+}
+
+.fi-topbar-item.fi-active .fi-badge.fi-color {
+    @apply bg-white text-color-800 ring-0;
 }
 
 /* Superfici piatte: niente ombre, bordo sottile, raggio generoso. */
