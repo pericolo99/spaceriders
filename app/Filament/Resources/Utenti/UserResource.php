@@ -42,7 +42,14 @@ class UserResource extends Resource
         return $schema->components([
             Section::make()->columns(2)->schema([
                 TextInput::make('name')->label('Nome')->required()->maxLength(255),
-                TextInput::make('email')->label('Email')->email()->required()->unique(ignoreRecord: true),
+                // Nome utente o email: è quello che si scrive per entrare.
+                TextInput::make('email')
+                    ->label('Utente')
+                    ->helperText('Nome utente o email, per entrare.')
+                    ->required()
+                    ->maxLength(255)
+                    ->unique(ignoreRecord: true)
+                    ->dehydrateStateUsing(fn (string $state): string => mb_strtolower(trim($state))),
                 TextInput::make('password')
                     ->label('Password')
                     ->password()
@@ -61,7 +68,7 @@ class UserResource extends Resource
             ->defaultSort('name')
             ->columns([
                 TextColumn::make('name')->label('Nome')->weight('semibold')->searchable(),
-                TextColumn::make('email')->label('Email')->searchable(),
+                TextColumn::make('email')->label('Utente')->searchable(),
                 TextColumn::make('created_at')->label('Dal')->date('d/m/Y'),
             ])
             ->recordActions([EditAction::make()]);

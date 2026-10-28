@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Auth\Accesso;
 use App\Filament\Pages\Oggi;
 use App\Filament\Pubblico\Registrazione;
 use App\Filament\Resources\Utenti\UserResource;
@@ -40,7 +41,7 @@ class ServicePanelProvider extends PanelProvider
             ->default()
             ->id('service')
             ->path('')
-            ->login()
+            ->login(Accesso::class)
             ->brandName('Space Riders Service')
             ->brandLogo(fn (): View => view('filament.brand'))
             ->brandLogoHeight('auto')
