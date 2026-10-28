@@ -130,6 +130,21 @@ Dopo ogni modifica al `.env`:
 php artisan config:cache
 ```
 
+### «Ho cambiato il `.env` ma legge sempre i valori vecchi»
+
+È la configurazione in cache: `bootstrap/cache/config.php`, scritta da un `config:cache` o da un
+`optimize` lanciato prima (anche da Plesk o a mano). Finché c'è, Laravel **non legge il `.env`**.
+Sintomo tipico: dopo aver messo `DB_PREFIX=sr_` e `APP_DEBUG=false`, la pagina d'errore continua
+a comparire e a cercare la tabella `sessions` senza prefisso.
+
+```bash
+php artisan config:clear       # oppure: rm bootstrap/cache/config.php
+php artisan config:show database.connections.mariadb.prefix   # deve dire sr_
+```
+
+Se dice ancora il valore vecchio, il `.env` modificato non è quello del progetto: deve stare
+accanto ad `artisan`, nella cartella di destinazione del Git di Plesk (non in `public/`).
+
 ---
 
 ## 5. Git e script di pubblicazione
