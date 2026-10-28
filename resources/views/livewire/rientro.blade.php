@@ -65,6 +65,29 @@
                         </div>
                     </section>
 
+                    @if ($noleggio->da_pagare)
+                        {{-- Il promemoria della consegna: si spunta quando il cliente paga. --}}
+                        <label @class([
+                            'flex cursor-pointer items-center gap-3 rounded-2xl px-4 py-3 ring-1',
+                            'bg-danger-50 ring-danger-200' => ! $pagato,
+                            'bg-primary-50 ring-primary-200' => $pagato,
+                        ])>
+                            <input type="checkbox" wire:model.live="pagato"
+                                class="h-6 w-6 shrink-0 rounded-md border-gray-300 text-primary-600 focus:ring-primary-600">
+                            <span class="flex min-w-0 flex-col">
+                                <span @class(['text-base font-semibold', 'text-danger-700' => ! $pagato, 'text-primary-800' => $pagato])>
+                                    {{ $pagato ? 'Pagato adesso' : 'Da pagare' }}
+                                </span>
+                                @if ($noleggio->note_pagamento)
+                                    <span class="text-sm font-medium text-gray-900">{{ $noleggio->note_pagamento }}</span>
+                                @endif
+                                @unless ($pagato)
+                                    <span class="text-sm text-gray-600">Spunta quando il cliente paga.</span>
+                                @endunless
+                            </span>
+                        </label>
+                    @endif
+
                     <div class="flex flex-col gap-3 sm:flex-row sm:items-start">
                         <div class="grow">
                             @include('filament.pages.partials.scanner', ['metodo' => 'leggi', 'senzaSuggerimenti' => true, 'segnaposto' => 'Leggi il codice di un pezzo'])

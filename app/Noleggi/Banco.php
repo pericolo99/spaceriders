@@ -55,6 +55,8 @@ class Banco
         array $sacche = [],
         ?string $note = null,
         ?User $operatore = null,
+        bool $daPagare = false,
+        ?string $notePagamento = null,
     ): Noleggio {
         if ($attrezzature === []) {
             throw new BancoException('Nessun pezzo', 'Leggi almeno un pezzo da consegnare.');
@@ -64,7 +66,7 @@ class Banco
             throw new BancoException('Date non valide', 'Il rientro non può essere prima della consegna.');
         }
 
-        return DB::transaction(function () use ($cliente, $attrezzature, $dataConsegna, $dataRientro, $giorniExtra, $sacche, $note, $operatore) {
+        return DB::transaction(function () use ($cliente, $attrezzature, $dataConsegna, $dataRientro, $giorniExtra, $sacche, $note, $operatore, $daPagare, $notePagamento) {
             // Si ricontrolla dentro la transazione, con i pezzi bloccati: due
             // postazioni potrebbero aver letto lo stesso codice nello stesso momento.
             $pezzi = Attrezzatura::whereKey($attrezzature)->lockForUpdate()->get();
@@ -82,6 +84,8 @@ class Banco
                 'sacche_snow' => (int) ($sacche['snow'] ?? 0),
                 'sacche_scarponi' => (int) ($sacche['scarponi'] ?? 0),
                 'note' => $note,
+                'da_pagare' => $daPagare,
+                'note_pagamento' => $daPagare ? $notePagamento : null,
             ]);
 
             $noleggio->righe()->createMany(
@@ -151,6 +155,14 @@ class Banco
 
             return $riga;
         });
+    }
+
+    /** Il cliente ha pagato: il promemoria «Da pagare» sparisce, la nota resta. */
+    public function segnaPagato(Noleggio $noleggio): void
+    {
+        if ($noleggio->da_pagare) {
+            $noleggio->update(['da_pagare' => false, 'pagato_at' => now()]);
+        }
     }
 
     /** Rimette in servizio un pezzo da controllare o fuori servizio. */

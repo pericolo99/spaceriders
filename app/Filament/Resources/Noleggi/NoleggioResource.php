@@ -10,6 +10,7 @@ use App\Filament\Resources\Noleggi\RelationManagers\RigheRelationManager;
 use App\Models\Noleggio;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -20,6 +21,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -50,6 +52,9 @@ class NoleggioResource extends Resource
                 TextInput::make('sacche_sci')->label('Sacche sci')->numeric()->integer()->minValue(0),
                 TextInput::make('sacche_snow')->label('Sacche snowboard')->numeric()->integer()->minValue(0),
                 TextInput::make('sacche_scarponi')->label('Sacche scarponi')->numeric()->integer()->minValue(0),
+                Checkbox::make('da_pagare')->label('Da pagare al rientro')->live()->columnSpanFull(),
+                TextInput::make('note_pagamento')->label('Note sul pagamento')->maxLength(255)->columnSpanFull()
+                    ->visible(fn ($get): bool => (bool) $get('da_pagare')),
                 Textarea::make('note')->label('Note')->rows(3)->columnSpanFull(),
             ]),
         ]);
@@ -72,6 +77,15 @@ class NoleggioResource extends Resource
                 TextEntry::make('giorni_extra')->label('Giorni extra'),
                 TextEntry::make('sacche')->label('Sacche')->state(fn (Noleggio $record): ?string => $record->sacche())->placeholder('nessuna'),
                 TextEntry::make('operatore.name')->label('Consegnato da')->placeholder('—'),
+                TextEntry::make('pagamento')->label('Pagamento')->badge()
+                    ->state(fn (Noleggio $record): ?string => match (true) {
+                        $record->da_pagare => 'Da pagare',
+                        $record->pagato_at !== null => 'Pagato il '.$record->pagato_at->format('d/m'),
+                        default => null,
+                    })
+                    ->color(fn (Noleggio $record): string => $record->da_pagare ? 'danger' : 'primary')
+                    ->helperText(fn (Noleggio $record): ?string => $record->note_pagamento)
+                    ->placeholder('—'),
                 TextEntry::make('note')->label('Note')->placeholder('—')->columnSpanFull(),
             ]),
         ]);
@@ -99,6 +113,7 @@ class NoleggioResource extends Resource
                         'chiusi' => $query->chiusi(),
                         default => $query,
                     }),
+                TernaryFilter::make('da_pagare')->label('Da pagare'),
                 SelectFilter::make('periodo')
                     ->label('Periodo')
                     ->options([
@@ -140,6 +155,11 @@ class NoleggioResource extends Resource
                 TextColumn::make('stato')->label('Stato')->badge()
                     ->state(fn (Noleggio $record): string => self::stato($record))
                     ->color(fn (Noleggio $record): string => self::coloreStato($record)),
+                TextColumn::make('da_pagare')->label('Pagamento')->badge()
+                    ->state(fn (Noleggio $record): ?string => $record->da_pagare ? 'Da pagare' : null)
+                    ->color('danger')
+                    ->tooltip(fn (Noleggio $record): ?string => $record->note_pagamento)
+                    ->placeholder(''),
             ])));
     }
 

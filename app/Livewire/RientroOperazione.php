@@ -41,6 +41,9 @@ class RientroOperazione extends Operazione
     /** @var array<int, string> id riga → nota, per gli esiti diversi da «a posto» */
     public array $note = [];
 
+    /** Il cliente ha pagato adesso: con il rientro si spegne il promemoria «Da pagare». */
+    public bool $pagato = false;
+
     /** Il campo del codice: leggere un pezzo lo segna «a posto». */
     public string $codice = '';
 
@@ -72,7 +75,7 @@ class RientroOperazione extends Operazione
 
     public function haDati(): bool
     {
-        return $this->esiti !== [];
+        return $this->esiti !== [] || $this->pagato;
     }
 
     protected function azzera(): void
@@ -80,6 +83,7 @@ class RientroOperazione extends Operazione
         $this->noleggioId = null;
         $this->esiti = [];
         $this->note = [];
+        $this->pagato = false;
         $this->codice = '';
         $this->foto = [];
         $this->nuove = [];
@@ -195,6 +199,7 @@ class RientroOperazione extends Operazione
         }
 
         $this->noleggioId = $riga->noleggio_id;
+        $this->pagato = false;
         $this->esiti[$riga->id] = Esito::Integro->value;
     }
 
@@ -247,7 +252,11 @@ class RientroOperazione extends Operazione
         }
 
         try {
-            DB::transaction(function () use ($righe) {
+            DB::transaction(function () use ($righe, $noleggio) {
+                if ($this->pagato) {
+                    app(Banco::class)->segnaPagato($noleggio);
+                }
+
                 foreach ($righe as $riga) {
                     $esito = $this->esiti[$riga->id];
 

@@ -42,6 +42,9 @@ class ImportaStorico extends Command
     /** @var array<int, int> id storico → id noleggio */
     private array $noleggi = [];
 
+    /** @var array<int, true> i noleggi creati da questa importazione */
+    private array $nuovi = [];
+
     public function handle(): int
     {
         $this->storico = DB::connection($this->option('connessione'));
@@ -187,6 +190,16 @@ class ImportaStorico extends Command
                 'created_at' => $s->created_at ?? $s->data_consegna,
             ]);
 
+            // Il promemoria si importa solo la prima volta: se nel pannello nuovo
+            // qualcuno ha già segnato «pagato», una nuova importazione non lo riaccende.
+            if ($noleggio->wasRecentlyCreated) {
+                $this->nuovi[$noleggio->id] = true;
+                $noleggio->update([
+                    'da_pagare' => $s->pagamento_consegna === 'on',
+                    'note_pagamento' => $this->testo($s->note_pagamento),
+                ]);
+            }
+
             $this->noleggi[$s->id] = $noleggio->id;
             $n++;
 
@@ -264,9 +277,15 @@ class ImportaStorico extends Command
         Noleggio::whereNotNull('storico_id')->withMax('righe', 'rientrata_at')->each(function (Noleggio $noleggio) use (&$chiusi) {
             $aperto = $noleggio->righeAperte()->exists();
 
-            $noleggio->updateQuietly([
-                'chiuso_at' => $aperto ? null : ($noleggio->righe_max_rientrata_at ?? $noleggio->data_rientro),
-            ]);
+            $campi = ['chiuso_at' => $aperto ? null : ($noleggio->righe_max_rientrata_at ?? $noleggio->data_rientro)];
+
+            // Il vecchio pannello non segnava mai il pagamento: su un noleggio già
+            // chiuso là, il promemoria è vecchio e si spegne (la nota resta).
+            if (! $aperto && isset($this->nuovi[$noleggio->id])) {
+                $campi['da_pagare'] = false;
+            }
+
+            $noleggio->updateQuietly($campi);
 
             $chiusi += $aperto ? 0 : 1;
         });

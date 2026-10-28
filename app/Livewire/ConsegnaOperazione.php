@@ -11,6 +11,7 @@ use App\Models\Cliente;
 use App\Noleggi\Banco;
 use App\Noleggi\BancoException;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -80,6 +81,8 @@ class ConsegnaOperazione extends Operazione
             'sacche_snow' => 0,
             'sacche_scarponi' => 0,
             'note' => null,
+            'da_pagare' => false,
+            'note_pagamento' => null,
         ];
     }
 
@@ -88,7 +91,10 @@ class ConsegnaOperazione extends Operazione
         return $schema
             ->statePath('dati')
             ->components([
+                // Sezioni senza riquadro: titoli e campi, Note comprese, partono
+                // dallo stesso bordo, allineati anche con «Materiale» a destra.
                 Section::make('Cliente e date')
+                    ->contained(false)
                     ->schema([
                         Select::make('cliente_id')
                             ->label('Cliente')
@@ -128,6 +134,7 @@ class ConsegnaOperazione extends Operazione
                         ]),
                     ]),
                 Section::make('Sacche consegnate')
+                    ->contained(false)
                     ->description('Da farsi ridare al rientro.')
                     ->collapsible()
                     ->collapsed()
@@ -137,6 +144,15 @@ class ConsegnaOperazione extends Operazione
                         TextInput::make('sacche_snow')->label('Snowboard')->numeric()->integer()->minValue(0)->maxValue(20),
                         TextInput::make('sacche_scarponi')->label('Scarponi')->numeric()->integer()->minValue(0)->maxValue(20),
                     ]),
+                // Il promemoria del vecchio pannello: al rientro il banco lo vede in rosso.
+                Checkbox::make('da_pagare')
+                    ->label('Da pagare al rientro')
+                    ->live(),
+                TextInput::make('note_pagamento')
+                    ->label('Note sul pagamento')
+                    ->placeholder('Es. paga con il gruppo, manca il saldo')
+                    ->maxLength(255)
+                    ->visible(fn ($get): bool => (bool) $get('da_pagare')),
                 Textarea::make('note')
                     ->label('Note')
                     ->rows(2),
@@ -233,6 +249,8 @@ class ConsegnaOperazione extends Operazione
                 ],
                 note: $dati['note'] ?? null,
                 operatore: Auth::user(),
+                daPagare: (bool) ($dati['da_pagare'] ?? false),
+                notePagamento: $dati['note_pagamento'] ?? null,
             );
         } catch (BancoException $e) {
             $e->avviso()->danger()->send();

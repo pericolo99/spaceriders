@@ -205,4 +205,34 @@ class RientroTest extends TestCase
             ->assertSet('noleggioId', null)
             ->assertNotified('Pezzo non a noleggio');
     }
+
+    public function test_il_rientro_puo_segnare_pagato(): void
+    {
+        $this->noleggio->update(['da_pagare' => true, 'note_pagamento' => 'manca il saldo']);
+        [$sci] = $this->pezzi;
+
+        Livewire::test(RientroOperazione::class)
+            ->call('apri', $this->noleggio->id)
+            ->assertSee('Da pagare')
+            ->assertSee('manca il saldo')
+            ->set('pagato', true)
+            ->call('scegli', $this->riga($sci), Esito::Integro->value)
+            ->call('registra');
+
+        $this->assertFalse($this->noleggio->refresh()->da_pagare);
+        $this->assertNotNull($this->noleggio->pagato_at);
+    }
+
+    public function test_senza_spunta_il_promemoria_resta(): void
+    {
+        $this->noleggio->update(['da_pagare' => true]);
+        [$sci] = $this->pezzi;
+
+        Livewire::test(RientroOperazione::class)
+            ->call('apri', $this->noleggio->id)
+            ->call('scegli', $this->riga($sci), Esito::Integro->value)
+            ->call('registra');
+
+        $this->assertTrue($this->noleggio->refresh()->da_pagare);
+    }
 }

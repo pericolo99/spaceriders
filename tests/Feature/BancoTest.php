@@ -156,4 +156,39 @@ class BancoTest extends TestCase
         $this->assertSame([$scaduto->id], Noleggio::inRitardo()->pluck('id')->all());
         $this->assertSame(2, $scaduto->refresh()->giorniDiRitardo());
     }
+
+    public function test_da_pagare_e_un_promemoria_che_si_spegne_quando_paga(): void
+    {
+        $noleggio = $this->banco->consegna(
+            Cliente::factory()->create(),
+            [Attrezzatura::factory()->create()->id],
+            today(),
+            today()->addDay(),
+            daPagare: true,
+            notePagamento: 'paga con il gruppo',
+        );
+
+        $this->assertTrue($noleggio->da_pagare);
+        $this->assertSame('paga con il gruppo', $noleggio->note_pagamento);
+
+        $this->banco->segnaPagato($noleggio);
+
+        $this->assertFalse($noleggio->refresh()->da_pagare);
+        $this->assertNotNull($noleggio->pagato_at);
+        $this->assertSame('paga con il gruppo', $noleggio->note_pagamento);
+    }
+
+    public function test_senza_da_pagare_la_nota_sul_pagamento_non_si_salva(): void
+    {
+        $noleggio = $this->banco->consegna(
+            Cliente::factory()->create(),
+            [Attrezzatura::factory()->create()->id],
+            today(),
+            today()->addDay(),
+            notePagamento: 'rimasta nel campo',
+        );
+
+        $this->assertFalse($noleggio->da_pagare);
+        $this->assertNull($noleggio->note_pagamento);
+    }
 }

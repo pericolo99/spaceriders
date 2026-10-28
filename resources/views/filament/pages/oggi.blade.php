@@ -106,7 +106,12 @@
                     {{-- Su schermo largo la data ha la sua colonna; sul telefono scende sotto il nome. --}}
                     <span class="hidden w-24 shrink-0 text-sm text-gray-500 sm:block">{{ $quando }}</span>
                     <span class="flex min-w-0 grow flex-col gap-0.5">
-                        <span class="truncate text-base font-semibold text-gray-950">{{ $noleggio->cliente->nominativo }}</span>
+                        <span class="flex min-w-0 items-center gap-2">
+                            <span class="truncate text-base font-semibold text-gray-950">{{ $noleggio->cliente->nominativo }}</span>
+                            @if ($noleggio->da_pagare)
+                                <span class="shrink-0 rounded-full bg-danger-100 px-2.5 py-0.5 text-xs font-semibold text-danger-800">Da pagare</span>
+                            @endif
+                        </span>
                         <span class="truncate text-sm text-gray-500">
                             {{ $noleggio->righe_aperte_count }} {{ $noleggio->righe_aperte_count === 1 ? 'pezzo' : 'pezzi' }} fuori
                             @if ($noleggio->sacche())

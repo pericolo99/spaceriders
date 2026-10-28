@@ -22,6 +22,8 @@ class Noleggio extends Model
             'data_consegna' => 'date',
             'data_rientro' => 'date',
             'chiuso_at' => 'datetime',
+            'da_pagare' => 'boolean',
+            'pagato_at' => 'datetime',
             'giorni_extra' => 'integer',
             'sacche_sci' => 'integer',
             'sacche_snow' => 'integer',

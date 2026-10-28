@@ -8,6 +8,7 @@ use App\Enums\Tipologia;
 use App\Models\Attrezzatura;
 use App\Models\Cliente;
 use App\Models\Noleggio;
+use App\Noleggi\Banco;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -50,7 +51,7 @@ class ImportaStoricoTest extends TestCase
         });
         $s->create('sessione_noleggio', function (Blueprint $t) {
             $t->integer('id');
-            foreach (['id_anagrafica', 'data_consegna', 'data_rientro', 'extra_gg', 'sacche_sci', 'sacche_snow', 'sacche_scarponi', 'note', 'stato', 'created_at'] as $c) {
+            foreach (['id_anagrafica', 'data_consegna', 'data_rientro', 'extra_gg', 'sacche_sci', 'sacche_snow', 'sacche_scarponi', 'note', 'stato', 'created_at', 'pagamento_consegna', 'note_pagamento'] as $c) {
                 $t->string($c)->nullable();
             }
         });
@@ -84,8 +85,8 @@ class ImportaStoricoTest extends TestCase
         // Noleggio 100: chiuso, uno scarpone rientrato rotto e un pezzo che non è più in inventario.
         // Noleggio 101: segnato chiuso (stato 1) ma con lo sci ancora fuori.
         $db->table('sessione_noleggio')->insert([
-            ['id' => 100, 'id_anagrafica' => 10, 'data_consegna' => '2025-12-20', 'data_rientro' => '2025-12-27', 'extra_gg' => '0', 'sacche_sci' => '1', 'sacche_snow' => '', 'sacche_scarponi' => null, 'stato' => '1'],
-            ['id' => 101, 'id_anagrafica' => 10, 'data_consegna' => '2026-01-03', 'data_rientro' => '2026-01-05', 'extra_gg' => '2', 'sacche_sci' => null, 'sacche_snow' => null, 'sacche_scarponi' => null, 'stato' => '1'],
+            ['id' => 100, 'id_anagrafica' => 10, 'data_consegna' => '2025-12-20', 'data_rientro' => '2025-12-27', 'extra_gg' => '0', 'sacche_sci' => '1', 'sacche_snow' => '', 'sacche_scarponi' => null, 'stato' => '1', 'pagamento_consegna' => 'on', 'note_pagamento' => 'paga il papà'],
+            ['id' => 101, 'id_anagrafica' => 10, 'data_consegna' => '2026-01-03', 'data_rientro' => '2026-01-05', 'extra_gg' => '2', 'sacche_sci' => null, 'sacche_snow' => null, 'sacche_scarponi' => null, 'stato' => '1', 'pagamento_consegna' => 'on', 'note_pagamento' => null],
         ]);
         $db->table('sessione_noleggio_rientro')->insert([
             ['id' => 1, 'id_sessione' => 100, 'codice' => '61978002', 'data_rientro' => '2025-12-27'],
@@ -119,11 +120,20 @@ class ImportaStoricoTest extends TestCase
         $this->assertSame(2, $chiuso->righe()->count());
         $this->assertSame(Esito::Danneggiato, $chiuso->righe()->whereHas('attrezzatura', fn ($q) => $q->where('codice', '61978002'))->sole()->esito);
         $this->assertSame('gancio rotto', $chiuso->segnalazioni()->sole()->note);
+        // Chiuso nel vecchio: il promemoria è vecchio e si spegne, la nota resta.
+        $this->assertFalse($chiuso->da_pagare);
+        $this->assertSame('paga il papà', $chiuso->note_pagamento);
 
         // Lo sci è ancora fuori: il noleggio resta aperto anche se il vecchio pannello lo dava chiuso.
         $aperto = Noleggio::where('storico_id', 101)->sole();
         $this->assertTrue($aperto->isAperto());
         $this->assertTrue(Attrezzatura::where('codice', '61978001')->sole()->isFuori());
+        $this->assertTrue($aperto->da_pagare);
+
+        // Pagato nel pannello nuovo: una nuova importazione non riaccende il promemoria.
+        app(Banco::class)->segnaPagato($aperto);
+        $this->artisan('kaukau:importa-storico')->assertSuccessful();
+        $this->assertFalse($aperto->refresh()->da_pagare);
 
         $this->assertSame(2, Noleggio::count());
         $this->assertSame(3, DB::table('noleggio_righe')->count());
