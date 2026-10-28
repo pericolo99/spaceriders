@@ -46,6 +46,11 @@ class RegistrazioneTest extends TestCase
             ->assertDontSee('manifest.webmanifest');
     }
 
+    public function test_il_vecchio_indirizzo_porta_alla_registrazione(): void
+    {
+        $this->get('/public/registrazione')->assertRedirect('/registrazione')->assertStatus(301);
+    }
+
     public function test_il_cliente_si_registra_da_solo(): void
     {
         Livewire::test(Registrazione::class)
