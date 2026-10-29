@@ -85,7 +85,7 @@ class Banco
                 'sacche_scarponi' => (int) ($sacche['scarponi'] ?? 0),
                 'note' => $note,
                 'da_pagare' => $daPagare,
-                'note_pagamento' => $daPagare ? $notePagamento : null,
+                'note_pagamento' => filled($notePagamento) ? trim($notePagamento) : null,
             ]);
 
             $noleggio->righe()->createMany(

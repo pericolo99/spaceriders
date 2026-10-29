@@ -178,17 +178,17 @@ class BancoTest extends TestCase
         $this->assertSame('paga con il gruppo', $noleggio->note_pagamento);
     }
 
-    public function test_senza_da_pagare_la_nota_sul_pagamento_non_si_salva(): void
+    public function test_la_nota_sul_pagamento_si_salva_anche_senza_da_pagare(): void
     {
         $noleggio = $this->banco->consegna(
             Cliente::factory()->create(),
             [Attrezzatura::factory()->create()->id],
             today(),
             today()->addDay(),
-            notePagamento: 'rimasta nel campo',
+            notePagamento: ' ha già pagato con bonifico ',
         );
 
         $this->assertFalse($noleggio->da_pagare);
-        $this->assertNull($noleggio->note_pagamento);
+        $this->assertSame('ha già pagato con bonifico', $noleggio->note_pagamento);
     }
 }

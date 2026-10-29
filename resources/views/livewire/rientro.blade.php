@@ -86,6 +86,12 @@
                                 @endunless
                             </span>
                         </label>
+                    @elseif ($noleggio->note_pagamento)
+                        {{-- Una nota senza promemoria: si legge, non c'è niente da spuntare. --}}
+                        <div class="flex flex-col rounded-2xl bg-gray-50 px-4 py-3 ring-1 ring-gray-200">
+                            <span class="text-sm font-semibold text-gray-700">Nota sul pagamento</span>
+                            <span class="text-base font-medium text-gray-900">{{ $noleggio->note_pagamento }}</span>
+                        </div>
                     @endif
 
                     <div class="flex flex-col gap-3 sm:flex-row sm:items-start">

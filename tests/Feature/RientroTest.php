@@ -235,4 +235,15 @@ class RientroTest extends TestCase
 
         $this->assertTrue($this->noleggio->refresh()->da_pagare);
     }
+
+    public function test_una_nota_sul_pagamento_senza_promemoria_si_legge(): void
+    {
+        $this->noleggio->update(['note_pagamento' => 'pagato con bonifico']);
+
+        Livewire::test(RientroOperazione::class)
+            ->call('apri', $this->noleggio->id)
+            ->assertSee('Nota sul pagamento')
+            ->assertSee('pagato con bonifico')
+            ->assertDontSee('Spunta quando il cliente paga');
+    }
 }

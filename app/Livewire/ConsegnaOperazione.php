@@ -146,13 +146,11 @@ class ConsegnaOperazione extends Operazione
                     ]),
                 // Il promemoria del vecchio pannello: al rientro il banco lo vede in rosso.
                 Checkbox::make('da_pagare')
-                    ->label('Da pagare al rientro')
-                    ->live(),
+                    ->label('Da pagare al rientro'),
                 TextInput::make('note_pagamento')
                     ->label('Note sul pagamento')
                     ->placeholder('Es. paga con il gruppo, manca il saldo')
-                    ->maxLength(255)
-                    ->visible(fn ($get): bool => (bool) $get('da_pagare')),
+                    ->maxLength(255),
                 Textarea::make('note')
                     ->label('Note')
                     ->rows(2),

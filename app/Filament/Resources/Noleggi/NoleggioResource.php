@@ -52,9 +52,8 @@ class NoleggioResource extends Resource
                 TextInput::make('sacche_sci')->label('Sacche sci')->numeric()->integer()->minValue(0),
                 TextInput::make('sacche_snow')->label('Sacche snowboard')->numeric()->integer()->minValue(0),
                 TextInput::make('sacche_scarponi')->label('Sacche scarponi')->numeric()->integer()->minValue(0),
-                Checkbox::make('da_pagare')->label('Da pagare al rientro')->live()->columnSpanFull(),
-                TextInput::make('note_pagamento')->label('Note sul pagamento')->maxLength(255)->columnSpanFull()
-                    ->visible(fn ($get): bool => (bool) $get('da_pagare')),
+                Checkbox::make('da_pagare')->label('Da pagare al rientro')->columnSpanFull(),
+                TextInput::make('note_pagamento')->label('Note sul pagamento')->maxLength(255)->columnSpanFull(),
                 Textarea::make('note')->label('Note')->rows(3)->columnSpanFull(),
             ]),
         ]);
