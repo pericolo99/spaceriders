@@ -26,6 +26,8 @@ class Attrezzatura extends Model
             'tipologia' => Tipologia::class,
             'stato' => StatoAttrezzatura::class,
             'data_acquisto' => 'date',
+            'prezzo_acquisto' => 'decimal:2',
+            'prezzo_vendita' => 'decimal:2',
         ];
     }
 

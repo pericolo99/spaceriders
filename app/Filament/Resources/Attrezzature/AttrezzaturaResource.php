@@ -65,8 +65,11 @@ class AttrezzaturaResource extends Resource
                 TextInput::make('modello')->label('Modello'),
                 TextInput::make('misura')->label('Misura')->helperText('Lunghezza in cm, numero di scarpa o taglia.'),
                 Select::make('stato')->label('Stato')->options(StatoAttrezzatura::class)->default(StatoAttrezzatura::Attiva)->required()->native(false),
+                TextInput::make('descrizione')->label('Descrizione')->columnSpan(['md' => 2]),
+                // Acquisto e prezzi sulla stessa riga.
                 DatePicker::make('data_acquisto')->label('Acquistato il')->native(false)->displayFormat('d/m/Y'),
-                TextInput::make('descrizione')->label('Descrizione'),
+                TextInput::make('prezzo_acquisto')->label('Prezzo di acquisto')->numeric()->minValue(0)->step(0.01)->prefix('€'),
+                TextInput::make('prezzo_vendita')->label('Prezzo di vendita')->numeric()->minValue(0)->step(0.01)->prefix('€'),
                 Textarea::make('note')->label('Note')->rows(3)->columnSpanFull(),
             ]),
             Section::make('Foto del prodotto')
@@ -129,6 +132,8 @@ class AttrezzaturaResource extends Resource
                         $a->rigaAperta !== null => 'info',
                         default => $a->stato->getColor(),
                     }),
+                // Nell'elenco solo il prezzo di vendita; l'acquisto sta nella scheda.
+                TextColumn::make('prezzo_vendita')->label('Prezzo')->money('EUR', locale: 'it')->sortable()->placeholder('—')->toggleable(),
                 TextColumn::make('righe_count')->label('Noleggi')->numeric()->sortable()->toggleable(),
             ])
             ->filters([

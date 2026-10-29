@@ -45,7 +45,7 @@ class ImportaStoricoTest extends TestCase
         });
         $s->create('attrezzature', function (Blueprint $t) {
             $t->integer('id');
-            foreach (['codice', 'codice_gestionale', 'tipologia', 'marca', 'modello', 'misura', 'descrizione', 'stato', 'data_acquisto', 'note', 'created_at'] as $c) {
+            foreach (['codice', 'codice_gestionale', 'tipologia', 'marca', 'modello', 'misura', 'descrizione', 'stato', 'data_acquisto', 'prezzo_acquisto', 'prezzo_vendita', 'note', 'created_at'] as $c) {
                 $t->string($c)->nullable();
             }
         });
@@ -78,9 +78,9 @@ class ImportaStoricoTest extends TestCase
         $db->table('users')->insert(['id' => 1, 'email' => 'Banco@Example.it', 'password' => Hash::make('segreta'), 'first_name' => 'Anna', 'last_name' => 'Neri']);
         $db->table('anagrafica')->insert(['id' => 10, 'nome' => 'Luca', 'cognome' => 'Conti', 'contatto_telefono' => ' 333 ', 'registrazione' => 'Portale']);
         $db->table('attrezzature')->insert([
-            ['id' => 1, 'codice' => '61978001', 'tipologia' => 'SKI', 'marca' => 'HEAD', 'modello' => 'KORE', 'misura' => '170', 'stato' => null, 'codice_gestionale' => ''],
-            ['id' => 2, 'codice' => '61978002', 'tipologia' => 'SSK', 'marca' => 'LANGE', 'modello' => 'RX', 'misura' => '27', 'stato' => '-1', 'codice_gestionale' => null],
-            ['id' => 3, 'codice' => '61978003', 'tipologia' => 'XYZ', 'marca' => null, 'modello' => null, 'misura' => null, 'stato' => '', 'codice_gestionale' => null],
+            ['id' => 1, 'codice' => '61978001', 'tipologia' => 'SKI', 'marca' => 'HEAD', 'modello' => 'KORE', 'misura' => '170', 'stato' => null, 'codice_gestionale' => '', 'prezzo_acquisto' => '250.00', 'prezzo_vendita' => '0.00'],
+            ['id' => 2, 'codice' => '61978002', 'tipologia' => 'SSK', 'marca' => 'LANGE', 'modello' => 'RX', 'misura' => '27', 'stato' => '-1', 'codice_gestionale' => null, 'prezzo_acquisto' => null, 'prezzo_vendita' => '120.50'],
+            ['id' => 3, 'codice' => '61978003', 'tipologia' => 'XYZ', 'marca' => null, 'modello' => null, 'misura' => null, 'stato' => '', 'codice_gestionale' => null, 'prezzo_acquisto' => null, 'prezzo_vendita' => null],
         ]);
         // Noleggio 100: chiuso, uno scarpone rientrato rotto e un pezzo che non è più in inventario.
         // Noleggio 101: segnato chiuso (stato 1) ma con lo sci ancora fuori.
@@ -111,6 +111,11 @@ class ImportaStoricoTest extends TestCase
 
         $this->assertSame(Tipologia::Altro, Attrezzatura::where('codice', '61978003')->sole()->tipologia);
         $this->assertSame(StatoAttrezzatura::FuoriServizio, Attrezzatura::where('codice', '61978002')->sole()->stato);
+        // Prezzi: lo zero del vecchio pannello vuol dire «non indicato».
+        $sci = Attrezzatura::where('codice', '61978001')->sole();
+        $this->assertSame('250.00', $sci->prezzo_acquisto);
+        $this->assertNull($sci->prezzo_vendita);
+        $this->assertSame('120.50', Attrezzatura::where('codice', '61978002')->sole()->prezzo_vendita);
         $ricreato = Attrezzatura::where('codice', '28170001')->sole();
         $this->assertSame(StatoAttrezzatura::FuoriServizio, $ricreato->stato);
 

@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\DB;
  * `storico_id`; le righe di un noleggio si scrivono solo la prima volta, così
  * un rientro fatto nel nuovo pannello non viene mai sovrascritto.
  *
+ * Dei pezzi si importano anche i prezzi di acquisto e di vendita.
  * Non si importano i pagamenti né le tabelle che il vecchio pannello non
  * usava (prenotazioni, borsellino, buoni, tracing): sono vuote nel dump.
  */
@@ -148,6 +149,8 @@ class ImportaStorico extends Command
                 'descrizione' => $this->testo($a->descrizione),
                 'stato' => (string) $a->stato === '-1' ? StatoAttrezzatura::FuoriServizio : StatoAttrezzatura::Attiva,
                 'data_acquisto' => $this->data($a->data_acquisto),
+                'prezzo_acquisto' => $this->prezzo($a->prezzo_acquisto),
+                'prezzo_vendita' => $this->prezzo($a->prezzo_vendita),
                 'note' => $this->testo($a->note),
                 'created_at' => $a->created_at ?? now(),
             ]);
@@ -308,6 +311,12 @@ class ImportaStorico extends Command
         $valore = trim((string) $valore);
 
         return $valore === '' ? null : $valore;
+    }
+
+    /** Il vecchio pannello scriveva 0 quando il prezzo non c'era. */
+    private function prezzo(mixed $valore): ?string
+    {
+        return is_numeric($valore) && (float) $valore > 0 ? number_format((float) $valore, 2, '.', '') : null;
     }
 
     private function data(?string $valore): ?string
